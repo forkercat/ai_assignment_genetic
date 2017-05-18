@@ -2,7 +2,6 @@
 #define MYDIALOG_H
 
 #include <QDialog>
-#include "jhbayes.h"
 
 class QTextEdit;
 class QLabel;
@@ -17,22 +16,16 @@ public:
     virtual ~MyDialog() {};
 
 private:
-    QTextEdit *sampleTextEdit; // 样本输入框
-    QLabel *trainingResultLabel; // 训练结果标签
-    QLabel *predictResultLabel; // 预测结果便签
-    QLineEdit *predictLineEdit; // 预测输入框
-    JHBayes *bayes;
 
-private slots:
-    // 按钮事件
-    void onImportButtonClicked();
-    void onClearButtonClicked();
-    void onTrainingButtonClicked();
-    void onTrainingClearButtonClicked();
-    void onPredictButtonClicked();
-    // 提醒框
-    void criticalMessage(QString msg);
-    void warningMessage(QString msg);
+    QLineEdit *popsizeEdit;
+    QLineEdit *precisionEdit;
+    QLineEdit *p_crossEdit;
+    QLineEdit *p_mutableEdit;
+
+    
+
+// private slots:
+
 };
 
 #endif // MYDIALOG_H

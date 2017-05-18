@@ -1,6 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>images/thomas_bayes1.jpg</file>
-    <file>images/thomas_bayes2.jpg</file>
+    <file>images/genetic.jpg</file>
 </qresource>
 </RCC>
