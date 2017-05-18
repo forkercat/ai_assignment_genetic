@@ -6,6 +6,8 @@
 #include <set>
 #include <vector>
 
+#include "genetic.h"
+
 using namespace std;
 
 // 定义些常量
@@ -16,7 +18,7 @@ static const int TRAINING_LABEL_WIDTH = 400;
 static const int PREDICT_LABEL_WIDTH = 400;
 // 高度
 static const int LINE_EDIT_HEIGHT = 30;
-static const int NORMAL_BUTTON_HEIGHT = 40;
+static const int NORMAL_BUTTON_HEIGHT = 60;
 static const int TEXT_EDIT_HEIGHT = 140;
 static const int TRAINING_LABEL_HEIGHT = 140;
 static const int TRAINING_LABEL_INDENT = 3;
@@ -64,9 +66,17 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     p_crossLabel->setFont(*labelFont);
     p_crossLabel->setFixedHeight(LABEL_HEIGHT);
 
-    QLabel *p_mutableLabel = new QLabel("变异概率:");
-    p_mutableLabel->setFont(*labelFont);
-    p_mutableLabel->setFixedHeight(LABEL_HEIGHT);
+    QLabel *p_mutateLabel = new QLabel("变异概率:");
+    p_mutateLabel->setFont(*labelFont);
+    p_mutateLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *iterationLabel = new QLabel("迭代次数:");
+    iterationLabel->setFont(*labelFont);
+    iterationLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *jLabel = new QLabel("j值:");
+    jLabel->setFont(*labelFont);
+    jLabel->setFixedHeight(LABEL_HEIGHT);
 
     QLabel *endingLabel = new QLabel("ai_assignment_genetic © 2017 Junhao (2014101027)");
     endingLabel->setFont(*smallLabelFont);
@@ -87,7 +97,7 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     precisionEdit->setFixedWidth(LINE_EDIT_WIDTH);
     precisionEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     precisionEdit->setFont(*textFont);
-    precisionEdit->setText("6");
+    precisionEdit->setText("0.000001");
 
     p_crossEdit = new QLineEdit;
     p_crossEdit->setFixedWidth(LINE_EDIT_WIDTH);
@@ -95,17 +105,27 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     p_crossEdit->setFont(*textFont);
     p_crossEdit->setText("0.75");
 
-    p_mutableEdit = new QLineEdit;
-    p_mutableEdit->setFixedWidth(LINE_EDIT_WIDTH);
-    p_mutableEdit->setFixedHeight(LINE_EDIT_HEIGHT);
-    p_mutableEdit->setFont(*textFont);
-    p_mutableEdit->setText("0.02");
+    p_mutateEdit = new QLineEdit;
+    p_mutateEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    p_mutateEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    p_mutateEdit->setFont(*textFont);
+    p_mutateEdit->setText("0.02");
 
+    iterationEdit = new QLineEdit;
+    iterationEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    iterationEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    iterationEdit->setFont(*textFont);
+    iterationEdit->setText("100");
 
+    jEdit = new QLineEdit;
+    jEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    jEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    jEdit->setFont(*textFont);
+    jEdit->setText("2");
 
     // All Buttons
     QFont *btnFont = new QFont;
-    btnFont->setPointSize(BUTTON_FONT_SIZE);
+    btnFont->setPointSize(BUTTON_BIG_FONT_SIZE);
     // QFont *btnBigFont = new QFont;
     // btnBigFont->setPointSize(BUTTON_BIG_FONT_SIZE);
 
@@ -177,7 +197,9 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     // Layout
     QVBoxLayout *mainLayout = new QVBoxLayout;
     QHBoxLayout *subInputLayout1 = new QHBoxLayout;
-    QHBoxLayout *subInputLayout2 = new QHBoxLayout;
+    QHBoxLayout *subInputLayout2 = new 
+    QHBoxLayout;
+    QHBoxLayout *subInputLayout3 = new QHBoxLayout;
     QHBoxLayout *subOutputLayout = new QHBoxLayout;
     QHBoxLayout *subControlLayout = new QHBoxLayout;
 
@@ -186,6 +208,8 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     subInputLayout1->setSpacing(MAIN_LAYOUT_MARGIN);
     subInputLayout2->setMargin(0);
     subInputLayout2->setSpacing(MAIN_LAYOUT_MARGIN);
+    subInputLayout3->setMargin(0);
+    subInputLayout3->setSpacing(MAIN_LAYOUT_MARGIN);
     subOutputLayout->setMargin(0);
     subOutputLayout->setSpacing(MAIN_LAYOUT_MARGIN);
     subControlLayout->setMargin(0);
@@ -201,8 +225,15 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     subInputLayout2->addWidget(p_crossLabel);
     subInputLayout2->addWidget(p_crossEdit);
     subInputLayout2->addStretch();
-    subInputLayout2->addWidget(p_mutableLabel);
-    subInputLayout2->addWidget(p_mutableEdit);
+    subInputLayout2->addWidget(p_mutateLabel);
+    subInputLayout2->addWidget(p_mutateEdit);
+
+
+    subInputLayout3->addWidget(iterationLabel);
+    subInputLayout3->addWidget(iterationEdit);
+    subInputLayout3->addStretch();
+    subInputLayout3->addWidget(jLabel);
+    subInputLayout3->addWidget(jEdit);
 
 
 
@@ -210,6 +241,7 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addWidget(imageLabel);
     mainLayout->addLayout(subInputLayout1);
     mainLayout->addLayout(subInputLayout2);
+    mainLayout->addLayout(subInputLayout3);
 
     // mainLayout->addWidget(trainingScrollArea);
 
@@ -230,13 +262,19 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     this->setMaximumSize(this->size());
 
     // 设置连接槽, 按钮事件
-    // connect(sampleImportBtn, SIGNAL(clicked()), this, SLOT(onImportButtonClicked()));
+    connect(trainBtn, SIGNAL(clicked()), this, SLOT(TrainBtnClicked()));
 
     // connect(sampleClearBtn, SIGNAL(clicked()), this, SLOT(onClearButtonClicked()));
 }
 
 
 // Button Clicked 按钮事件
+void MyDialog::TrainBtnClicked()
+{
+    Genetic genetic;
+    genetic.Train();
+}
+
 
 // // 训练模型清空
 // void MyDialog::onTrainingClearButtonClicked()

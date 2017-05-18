@@ -8,6 +8,6 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += mydialog.h
-SOURCES += mydialog.cpp main.cpp
+HEADERS += constant.h mydialog.h chromosome.h genetic.h
+SOURCES += constant.cpp mydialog.cpp chromosome.cpp genetic.cpp main.cpp
 RESOURCES += application.qrc

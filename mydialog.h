@@ -20,11 +20,14 @@ private:
     QLineEdit *popsizeEdit;
     QLineEdit *precisionEdit;
     QLineEdit *p_crossEdit;
-    QLineEdit *p_mutableEdit;
+    QLineEdit *p_mutateEdit;
+    QLineEdit *iterationEdit;
+    QLineEdit *jEdit;
 
     
 
-// private slots:
+private slots:
+    void TrainBtnClicked();
 
 };
 
