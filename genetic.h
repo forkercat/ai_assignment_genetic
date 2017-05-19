@@ -51,6 +51,9 @@ private:
     std::vector< std::vector<double> > g_rel_adaptiveData;
     std::vector< std::vector<int> > g_N;       /* 需复制量 */
     std::vector< std::vector<Chromosome> > g_pool;    /* 繁殖池 */
+    std::vector< std::vector<Chromosome> > g_crossData;  /* 杂交子代 */
+    std::vector< std::vector<Chromosome> > g_mutateData;  /* 变异子代 */
+
 
     int g_num_of_bit;
     
@@ -62,11 +65,16 @@ private:
     void Reset();  /* 重置 */
     void CreatePrimitive();     /* 生成原始染色体 */
     void GetNumberOfBit();      /* 获取Bit的个数 动态 */
-    void SelectStrategy(int i, int select_type);      /* 选择策略(适应值, 相对适应值, 繁殖量)  i表示当前迭代次数, select_type表示选择策略 0-轮盘 1-锦标赛 */
+    void SelectStrategy(int iter, int select_type);      /* 选择策略(适应值, 相对适应值, 繁殖量)  iter表示当前迭代次数, select_type表示选择策略 0-轮盘 1-锦标赛 */
 
-    /* 轮盘策略和锦标赛策略, i表示当前迭代次数 */
-    void Wheel_Strategy(int i, double total_adaptive);
-    void Tournament_Strategy(int i, double percentage);  /* 每次锦标赛选取比例 */
+    void Cross(int iter);
+    void Mutate(int iter);
+    std::vector<Chromosome> Cull(int iter);
+
+
+    /* 轮盘策略和锦标赛策略, iter表示当前迭代次数 */
+    void Wheel_Strategy(int iter, double total_adaptive);
+    void Tournament_Strategy(int iter, double percentage);  /* 每次锦标赛选取比例 */
 
 
     /* 目标函数, 适应值函数 */
@@ -74,10 +82,17 @@ private:
     /* 问题一 */
     double F_1(double x1, double x2, double j);
     /* 问题二 */
-    double F_2(const std::vector<double> x_vec, double j, int n);
+    double F_2(const std::vector<double> x_vec, int n);
 
     /* 获取对应问题的变量个数 */
     int GetNumberOfX();
+
+//     /* 锦标赛中随机打乱 */
+//     template<class RandomAccessIterator>  
+//     void random_shuffle(  
+//       RandomAccessIterator _First, //指向序列首元素的迭代器  
+//       RandomAccessIterator _Last  //指向序列最后一个元素的下一个位置的迭代器  
+//    );  
 };
 
 

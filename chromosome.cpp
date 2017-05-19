@@ -18,6 +18,14 @@ Chromosome::Chromosome(int num_of_bit)
     std::cout << std::endl;
 }
 
+Chromosome::Chromosome(std::vector<int> vec)
+{
+    for (unsigned int i = 0; i < vec.size(); ++i)
+    {
+        c_data.push_back(vec[i]);
+    }
+}
+
 
 std::vector<double> Chromosome::GetValue(int popsize, double leftVal, double rightVal, int num_of_x)
 {
@@ -46,4 +54,50 @@ std::vector<double> Chromosome::GetValue(int popsize, double leftVal, double rig
     }
 
     return x;
+}
+
+
+std::vector<Chromosome> Chromosome::Cross(Chromosome otherChromo)
+{
+    int num_of_bit = c_data.size();
+
+    /* 杂交分割点 */
+    int split = rand() % (num_of_bit - 1);
+
+    /* 0~split split+1~num_of_bit-1 */
+
+    std::vector<int> new_1;
+    std::vector<int> new_2;
+
+    for (int i = 0; i <= split; ++i)
+    {
+        new_1.push_back(c_data[i]);
+        new_2.push_back(otherChromo.GetData()[i]);
+    }
+
+    for (int i = split + 1; i < num_of_bit; ++i)
+    {
+        new_1.push_back(otherChromo.GetData()[i]);
+        new_2.push_back(c_data[i]);
+    }
+
+    Chromosome c_1(new_1);
+    Chromosome c_2(new_2);
+
+    std::vector<Chromosome> ret;
+    ret.push_back(c_1);
+    ret.push_back(c_2);
+
+    return ret;
+}
+
+Chromosome Chromosome::Mutate()
+{
+    std::vector<int> temp = c_data;
+
+    Chromosome c(temp);
+    int idxToMutate = rand() % c_data.size();
+    c.c_data[idxToMutate] = (c.c_data[idxToMutate] == 0) ? 1 : 0;
+
+    return c;
 }

@@ -262,6 +262,7 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addLayout(subInputLayout1);
     mainLayout->addLayout(subInputLayout2);
     mainLayout->addLayout(subInputLayout3);
+    mainLayout->addLayout(subInputLayout5);
     mainLayout->addLayout(subInputLayout4);
 
     // mainLayout->addWidget(trainingScrollArea);
