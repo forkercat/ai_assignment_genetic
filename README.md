@@ -1,8 +1,8 @@
-# ai_assignment_bayes
+# ai_assignment_genetic
 
-Naive Bayes Classifier 贝叶斯分类器
+Genetic Algorithm 遗传算法
 
-1st assignment of AI class
+3rd assignment of AI class
 
-![](https://github.com/chuckwong/ai_assignment_bayes/blob/master/screenshot.png)
+![](https://github.com/chuckwong/ai_assignment_genetic/blob/master/screenshot.png)
 
