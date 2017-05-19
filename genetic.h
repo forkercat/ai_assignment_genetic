@@ -19,6 +19,8 @@ public:
     double g_j;
     int g_n;
 
+    double g_percentage;  /* 锦标赛比例 */
+
     /* 规模, 精度, 杂率, 变率, 左区间值, 右区间值 */
 
     Genetic();
@@ -33,7 +35,7 @@ public:
     void SetIterationTime(int iteration) { g_iteration_time = iteration; }
     void SetJ(double j) { g_j = j; }
     void SetN(int n) { g_n = n; }
-
+    void SetPercentage(double percentage) { g_percentage = percentage; }
 
     void Train(int type);
 
@@ -47,16 +49,24 @@ private:
     std::vector< std::vector<Chromosome> > g_chromoData;
     std::vector< std::vector<double> > g_adaptiveData;
     std::vector< std::vector<double> > g_rel_adaptiveData;
-    std::vector< std::vector<int> > g_N;       /* 繁殖量 */
+    std::vector< std::vector<int> > g_N;       /* 需复制量 */
+    std::vector< std::vector<Chromosome> > g_pool;    /* 繁殖池 */
 
     int g_num_of_bit;
     
 
     /* 私有方法 */
+
+    void DisplayInfo();
+
     void Reset();  /* 重置 */
     void CreatePrimitive();     /* 生成原始染色体 */
     void GetNumberOfBit();      /* 获取Bit的个数 动态 */
-    void SelectStrategy(int i);      /* 选择策略(适应值, 相对适应值, 繁殖量)  i表示当前迭代次数 */
+    void SelectStrategy(int i, int select_type);      /* 选择策略(适应值, 相对适应值, 繁殖量)  i表示当前迭代次数, select_type表示选择策略 0-轮盘 1-锦标赛 */
+
+    /* 轮盘策略和锦标赛策略, i表示当前迭代次数 */
+    void Wheel_Strategy(int i, double total_adaptive);
+    void Tournament_Strategy(int i, double percentage);  /* 每次锦标赛选取比例 */
 
 
     /* 目标函数, 适应值函数 */
@@ -64,7 +74,7 @@ private:
     /* 问题一 */
     double F_1(double x1, double x2, double j);
     /* 问题二 */
-    double F_2(const std::vector<double> x_p, double j, int n);
+    double F_2(const std::vector<double> x_vec, double j, int n);
 
     /* 获取对应问题的变量个数 */
     int GetNumberOfX();

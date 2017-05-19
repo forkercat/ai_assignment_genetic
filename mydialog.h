@@ -30,6 +30,7 @@ private:
     QLineEdit *leftValEdit;
     QLineEdit *rightValEdit;
     QLineEdit *nEdit;
+    QLineEdit *tournamentEdit;
 
     QPushButton *functionBtn;
 

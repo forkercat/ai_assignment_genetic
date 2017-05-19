@@ -18,5 +18,7 @@ extern double J;
 
 extern int N_2;
 
+extern double PERCENTAGE;
+
 
 #endif

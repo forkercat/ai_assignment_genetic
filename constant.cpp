@@ -16,3 +16,5 @@ int ITERATION_TIME = 100;
 double J = 2.0;
 
 int N_2 = 2;
+
+double PERCENTAGE = 0.4;

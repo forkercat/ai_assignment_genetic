@@ -39,8 +39,8 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     
     // 函数Name
     current_problem_type = 0;
-    functionNameData.push_back("问题一 （n无关, 点我切换问题）");
-    functionNameData.push_back("问题二 （n = 2, 可修改）");
+    functionNameData.push_back("问题一 （n和锦标比例无关, 点我切换问题）");
+    functionNameData.push_back("问题二 （j无关, 不可修改）");
 
     // 图片
     QPixmap introImage_1;
@@ -97,6 +97,10 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     QLabel *nLabel = new QLabel("n值:         ");
     nLabel->setFont(*labelFont);
     nLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *tournamentLabel = new QLabel("锦标比例:");
+    tournamentLabel->setFont(*labelFont);
+    tournamentLabel->setFixedHeight(LABEL_HEIGHT);
 
     QLabel *endingLabel = new QLabel("ai_assignment_genetic © 2017 Junhao (2014101027)");
     endingLabel->setFont(*smallLabelFont);
@@ -156,11 +160,18 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     rightValEdit->setText(QString("%1").arg(RIGHT_VAL_1));
 
     nEdit = new QLineEdit;
-    nEdit->setFixedWidth(LINE_EDIT_WIDTH * 2.5);
+    nEdit->setFixedWidth(LINE_EDIT_WIDTH);
     nEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     nEdit->setFont(*textFont);
     nEdit->setText(QString("%1").arg(N_2));
     nEdit->setReadOnly(true);
+
+    tournamentEdit = new QLineEdit;
+    tournamentEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    tournamentEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    tournamentEdit->setFont(*textFont);
+    tournamentEdit->setText(QString("%1").arg(PERCENTAGE));
+    tournamentEdit->setReadOnly(true);
 
     // All Buttons
     QFont *btnFont = new QFont;
@@ -217,6 +228,8 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     subInputLayout1->addWidget(nLabel);
     subInputLayout1->addWidget(nEdit);
     subInputLayout1->addStretch();
+    subInputLayout1->addWidget(tournamentLabel);
+    subInputLayout1->addWidget(tournamentEdit);
 
     subInputLayout2->addWidget(leftValLabel);
     subInputLayout2->addWidget(leftValEdit);
@@ -288,12 +301,16 @@ void MyDialog::SwitchFunction()
         leftValEdit->setText(QString("%1").arg(LEFT_VAL_1));
         rightValEdit->setText(QString("%1").arg(RIGHT_VAL_1));
         nEdit->setReadOnly(true);
+        jEdit->setReadOnly(false);
+        tournamentEdit->setReadOnly(true);
     }
     else
     {
         leftValEdit->setText(QString("%1").arg(LEFT_VAL_2));
         rightValEdit->setText(QString("%1").arg(RIGHT_VAL_2));
         nEdit->setReadOnly(false);
+        jEdit->setReadOnly(true);
+        tournamentEdit->setReadOnly(false);
     }
 }
 
@@ -301,7 +318,6 @@ void MyDialog::SwitchFunction()
 void MyDialog::TrainBtnClicked()
 {
     Genetic genetic;
-    genetic.Train(current_problem_type);
 
     /* 设置参数 */
     genetic.SetPopsize(atoi(popsizeEdit->text().toStdString().c_str()));
@@ -313,6 +329,11 @@ void MyDialog::TrainBtnClicked()
     genetic.SetIterationTime(atoi(iterationEdit->text().toStdString().c_str()));
     genetic.SetJ(atof(jEdit->text().toStdString().c_str()));
     genetic.SetN(atoi(nEdit->text().toStdString().c_str()));
+    genetic.SetPercentage(atof(tournamentEdit->text().toStdString().c_str()));
+
+
+    /* 训练 */
+    genetic.Train(current_problem_type);
 
     // cout<<"--------"<<atoi(popsizeEdit->text().toStdString().c_str())<<endl;
 }
