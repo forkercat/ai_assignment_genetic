@@ -39,6 +39,7 @@ public:
 
     void Train(int type);
 
+    std::vector< std::vector<double> > GetResult() { return g_averageVal; };
 
 
 private:
@@ -46,17 +47,17 @@ private:
     int g_problem_type;  /* 问题类型 */
     
     /* 染色体数据 */
-    std::vector< std::vector<Chromosome> > g_chromoData;
-    std::vector< std::vector<double> > g_adaptiveData;
-    std::vector< std::vector<double> > g_rel_adaptiveData;
+    std::vector< std::vector<Chromosome> > g_chromoData;       /* 原始个体 */
+    std::vector< std::vector<double> > g_adaptiveData;          /* 适应值 */
+    std::vector< std::vector<double> > g_rel_adaptiveData;      /* 相对适应值 */
     std::vector< std::vector<int> > g_N;       /* 需复制量 */
     std::vector< std::vector<Chromosome> > g_pool;    /* 繁殖池 */
     std::vector< std::vector<Chromosome> > g_crossData;  /* 杂交子代 */
     std::vector< std::vector<Chromosome> > g_mutateData;  /* 变异子代 */
 
+    std::vector< std::vector<double> > g_averageVal;       /* 每次迭代平均最小值 */
 
-    int g_num_of_bit;
-    
+    int g_num_of_bit;     /* 个体的位数 */
 
     /* 私有方法 */
 
@@ -86,13 +87,6 @@ private:
 
     /* 获取对应问题的变量个数 */
     int GetNumberOfX();
-
-//     /* 锦标赛中随机打乱 */
-//     template<class RandomAccessIterator>  
-//     void random_shuffle(  
-//       RandomAccessIterator _First, //指向序列首元素的迭代器  
-//       RandomAccessIterator _Last  //指向序列最后一个元素的下一个位置的迭代器  
-//    );  
 };
 
 

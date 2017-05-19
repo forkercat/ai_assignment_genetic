@@ -27,7 +27,7 @@ Chromosome::Chromosome(std::vector<int> vec)
 }
 
 
-std::vector<double> Chromosome::GetValue(int popsize, double leftVal, double rightVal, int num_of_x)
+std::vector<double> Chromosome::GetValue(double leftVal, double rightVal, int num_of_x)
 {
     // 二进制转换成 
 

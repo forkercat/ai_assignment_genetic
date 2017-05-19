@@ -34,6 +34,8 @@ private:
 
     QPushButton *functionBtn;
 
+    QLabel *trainingResultLabel; // 训练结果标签
+
     int current_problem_type;
     void SwitchFunction();
 

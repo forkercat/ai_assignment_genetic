@@ -51,6 +51,22 @@ void Genetic::Train(int type)
         /* 从父代和所有子代中选出最优的规模大小的个体 */
         std::vector<Chromosome> best_of_all = Cull(i);
 
+        /* 计算下平均值 */
+        double sum = 0.0;
+        for (unsigned int j = 0; j < best_of_all.size(); ++j)
+        {
+            std::vector<double> param = best_of_all[j].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
+            double val = Function(param, g_j, g_n);
+            sum += val;
+        }
+
+        std::vector<double> temp;
+        temp.push_back(sum / g_popsize);
+        temp.push_back((int)g_crossData[i].size());    /* 杂交产生的个体数 */
+        temp.push_back((int)g_mutateData[i].size());   /* 变异产生的个体数 */
+
+        g_averageVal.push_back(temp);
+
         if (i < g_iteration_time - 1)
         {
             /* 交给下一次迭代 */
@@ -61,7 +77,7 @@ void Genetic::Train(int type)
             /* 最后一次了 */
             for (unsigned int j = 0; j < best_of_all.size(); ++j)
             {
-                std::vector<double> param = best_of_all[j].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+                std::vector<double> param = best_of_all[j].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
                 double val = Function(param, g_j, g_n);
                 std::cout << val << std::endl;
             }
@@ -77,7 +93,7 @@ void Genetic::SelectStrategy(int iter, int select_type)
     for (int j = 0; j < g_popsize; ++j)
     {
         // 从data获取染色体并转换相应的x1 x2变量作为参数给目标函数
-        std::vector<double> param = g_chromoData[iter][j].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+        std::vector<double> param = g_chromoData[iter][j].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
 
         double val = Function(param, g_j, g_n);
         adaptiveData.push_back(val);
@@ -146,13 +162,13 @@ void Genetic::Tournament_Strategy(int iter, double percentage)
         std::random_shuffle(randomData.begin(), randomData.end());
 
         int bestIndex = 0;
-        std::vector<double>param = randomData[0].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+        std::vector<double>param = randomData[0].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
         double bestVal = Function(param, g_j, g_n);
 
         /* 选前match_num个 */
         for (int j = 1; j < match_num; ++j)
         {
-            std::vector<double>t_param = randomData[j].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+            std::vector<double>t_param = randomData[j].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
             double val = Function(t_param, g_j, g_n);
 
             if (val < bestVal)
@@ -228,13 +244,13 @@ std::vector<Chromosome> Genetic::Cull(int iter)
     std::vector<double> mutateVal;
     for (unsigned int i = 0; i < childCrossData.size(); ++i)
     {
-        std::vector<double>param = childCrossData[i].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+        std::vector<double>param = childCrossData[i].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
         double val = Function(param, g_j, g_n);
         crossVal.push_back(val);
     }
     for (unsigned int i = 0; i < childMutateData.size(); ++i)
     {
-        std::vector<double>param = childMutateData[i].GetValue(g_popsize, g_leftVal, g_rightVal, GetNumberOfX());
+        std::vector<double>param = childMutateData[i].GetValue(g_leftVal, g_rightVal, GetNumberOfX());
         double val = Function(param, g_j, g_n);
         mutateVal.push_back(val);
     }
@@ -276,8 +292,6 @@ std::vector<Chromosome> Genetic::Cull(int iter)
 }
 
 
-
-
 void Genetic::Reset()
 {
     g_chromoData.clear();
@@ -285,6 +299,9 @@ void Genetic::Reset()
     g_rel_adaptiveData.clear();
     g_N.clear();
     g_pool.clear();
+    g_crossData.clear();
+    g_mutateData.clear();
+    g_averageVal.clear();
 }
 
 void Genetic::CreatePrimitive()
@@ -300,7 +317,7 @@ void Genetic::CreatePrimitive()
         Chromosome chromo(g_num_of_bit);
         population.push_back(chromo);
 
-        std::vector<double> t = chromo.GetValue(g_popsize, g_leftVal, g_rightVal, 2);
+        std::vector<double> t = chromo.GetValue(g_leftVal, g_rightVal, 2);
     }
     g_chromoData.push_back(population);
 }

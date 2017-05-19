@@ -12,7 +12,7 @@ double RIGHT_VAL_1 = 6.0;
 double LEFT_VAL_2 = -10.0;
 double RIGHT_VAL_2 = 10.0;
 
-int ITERATION_TIME = 100;
+int ITERATION_TIME = 10;
 double J = 2.0;
 
 int N_2 = 2;

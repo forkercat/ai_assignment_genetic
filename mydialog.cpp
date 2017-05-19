@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <cstdlib>
+#include <cmath>
 
 #include "genetic.h"
 
@@ -16,15 +17,17 @@ using namespace std;
 
 // 宽度
 static const int LINE_EDIT_WIDTH = 195;
+static const int TRAINING_LABEL_WIDTH = 560;
 
 // 高度
 static const int LINE_EDIT_HEIGHT = 30;
 static const int NORMAL_BUTTON_HEIGHT = 50;
 static const int LARGE_BUTTON_HEIGHT = 60;
-static const int TEXT_EDIT_HEIGHT = 140;
 
 static const int LABEL_HEIGHT = 25;
 static const int MAIN_LAYOUT_MARGIN = 10;
+static const int TRAINING_LABEL_HEIGHT = 250;
+static const int TRAINING_LABEL_INDENT = 3;
 // 字体
 static const int SMALL_LABEL_FONT_SIZE = 14;
 static const int LABEL_FONT_SIZE = 16;
@@ -173,6 +176,17 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     tournamentEdit->setText(QString("%1").arg(PERCENTAGE));
     tournamentEdit->setReadOnly(true);
 
+    // TrainingResultLabel
+    QScrollArea *trainingScrollArea = new QScrollArea;
+    trainingScrollArea->setFixedWidth(TRAINING_LABEL_WIDTH);
+    trainingScrollArea->setFixedHeight(TRAINING_LABEL_HEIGHT);
+    trainingResultLabel = new QLabel;
+    trainingResultLabel->setScaledContents(true);
+    trainingResultLabel->setFont(*textFont);
+    trainingResultLabel->setIndent(TRAINING_LABEL_INDENT);
+    trainingResultLabel->setText("<训练结果>");
+    trainingScrollArea->setWidget(trainingResultLabel);
+
     // All Buttons
     QFont *btnFont = new QFont;
     btnFont->setPointSize(BUTTON_FONT_SIZE);
@@ -264,12 +278,7 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addLayout(subInputLayout3);
     mainLayout->addLayout(subInputLayout5);
     mainLayout->addLayout(subInputLayout4);
-
-    // mainLayout->addWidget(trainingScrollArea);
-
-    // mainLayout->addLayout(subPredictLayout);
-    // mainLayout->addWidget(predictScrollArea);
-
+    mainLayout->addWidget(trainingScrollArea);
     mainLayout->addWidget(trainBtn);
     mainLayout->addWidget(endingLabel);
 
@@ -336,7 +345,45 @@ void MyDialog::TrainBtnClicked()
     /* 训练 */
     genetic.Train(current_problem_type);
 
-    // cout<<"--------"<<atoi(popsizeEdit->text().toStdString().c_str())<<endl;
+    vector< vector<double> > result = genetic.GetResult();
+
+    string result_str = "<训练结果>\n";
+
+    char temp1[40];
+    result_str += "\n第";
+    sprintf(temp1, "%d次迭代后的函数最小值: ", (int)result.size());
+    result_str += temp1;
+
+    long cutInt = (long)(result[result.size()-1][0] * pow(10, atoi(precisionEdit->text().toStdString().c_str())));
+    double val =  cutInt / pow(10, atoi(precisionEdit->text().toStdString().c_str()));
+    sprintf(temp1, "%.15lf\n\n", val);
+    result_str += temp1;
+
+    for (unsigned int i = 0; i < result.size(); ++i)
+    {
+        char temp2[40];
+
+        result_str += "第";
+        sprintf(temp2, "%d", i + 1);
+        result_str += temp2;
+        result_str += "次迭代.......... 平均最小值: ";
+
+        long cutInt = (long)(result[i][0] * pow(10, atoi(precisionEdit->text().toStdString().c_str())));
+        double val =  cutInt / pow(10, atoi(precisionEdit->text().toStdString().c_str()));
+        sprintf(temp2, "%.15lf", val);
+        result_str += temp2;
+        result_str += "     杂交产生: ";
+        sprintf(temp2, "%d", (int)result[i][1]);
+        result_str += temp2;
+        result_str += "个, 变异产生: ";
+        sprintf(temp2, "%d", (int)result[i][2]);
+        result_str += temp2;
+        result_str += "个\n";
+    }
+
+    // 更新显示训练结果
+    trainingResultLabel->setText(result_str.c_str());
+    trainingResultLabel->adjustSize();
 }
 
 void MyDialog::FunctionBtnClicked()
@@ -346,23 +393,28 @@ void MyDialog::FunctionBtnClicked()
 
 void MyDialog::ResetBtnClicked()
 {
+    trainingResultLabel->setText("<训练结果>");
+    trainingResultLabel->adjustSize();
+    
+    popsizeEdit->setText(QString("%1").arg(POPSIZE));
 
+    precisionEdit->setText(QString("%1").arg(PRECISION));
+
+    p_crossEdit->setText(QString("%1").arg(P_CROSS));
+
+    p_mutateEdit->setText(QString("%1").arg(P_MUTATE));
+
+    iterationEdit->setText(QString("%1").arg(ITERATION_TIME));
+
+    jEdit->setText(QString("%1").arg(J));
+
+    leftValEdit->setText(QString("%1").arg(LEFT_VAL_1));
+
+    rightValEdit->setText(QString("%1").arg(RIGHT_VAL_1));
+
+    nEdit->setText(QString("%1").arg(N_2));
+    nEdit->setReadOnly(true);
+
+    tournamentEdit->setText(QString("%1").arg(PERCENTAGE));
+    tournamentEdit->setReadOnly(true);
 }
-
-// // 训练模型清空
-// void MyDialog::onTrainingClearButtonClicked()
-// {
-//     bayes = NULL;
-//     trainingResultLabel->setText("<空>");
-//     trainingResultLabel->adjustSize();
-// }
-
-
-// // 消息框
-// void MyDialog::criticalMessage(QString msg)
-// {
-//     QMessageBox::StandardButton reply;
-//     reply = QMessageBox::critical(this, "错误",
-//                                   msg,
-//                                   QMessageBox::Ok);
-// }

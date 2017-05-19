@@ -16,7 +16,7 @@ public:
     std::vector<int> GetData() { return c_data; }
 
     /* 适用于多元变量 */
-    std::vector<double> GetValue(int popsize, double leftVal, double rightVal, int num_of_x);
+    std::vector<double> GetValue(double leftVal, double rightVal, int num_of_x);
 
     /* 杂交 */
     std::vector<Chromosome> Cross(Chromosome otherChromo);
