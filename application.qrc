@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>images/genetic.jpg</file>
+    <file>images/genetic_1.jpg</file>
+    <file>images/genetic_2.jpg</file>
 </qresource>
 </RCC>

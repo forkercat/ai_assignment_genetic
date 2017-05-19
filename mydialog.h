@@ -2,6 +2,8 @@
 #define MYDIALOG_H
 
 #include <QDialog>
+#include <vector>
+#include <string>
 
 class QTextEdit;
 class QLabel;
@@ -17,17 +19,31 @@ public:
 
 private:
 
+    QLabel *imageLabel;
+
     QLineEdit *popsizeEdit;
     QLineEdit *precisionEdit;
     QLineEdit *p_crossEdit;
     QLineEdit *p_mutateEdit;
     QLineEdit *iterationEdit;
     QLineEdit *jEdit;
+    QLineEdit *leftValEdit;
+    QLineEdit *rightValEdit;
+    QLineEdit *nEdit;
 
+    QPushButton *functionBtn;
+
+    int current_problem_type;
+    void SwitchFunction();
+
+    std::vector<QString> functionNameData;
+    std::vector<QPixmap> imageData;
     
 
 private slots:
     void TrainBtnClicked();
+    void FunctionBtnClicked();
+    void ResetBtnClicked();
 
 };
 

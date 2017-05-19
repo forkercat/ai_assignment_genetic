@@ -3,10 +3,12 @@
 #include <QtGui>
 #include <string>
 #include <iostream>
-#include <set>
 #include <vector>
+#include <cstdlib>
 
 #include "genetic.h"
+
+#include "constant.h"
 
 using namespace std;
 
@@ -14,16 +16,13 @@ using namespace std;
 
 // 宽度
 static const int LINE_EDIT_WIDTH = 195;
-static const int TRAINING_LABEL_WIDTH = 400;
-static const int PREDICT_LABEL_WIDTH = 400;
+
 // 高度
 static const int LINE_EDIT_HEIGHT = 30;
-static const int NORMAL_BUTTON_HEIGHT = 60;
+static const int NORMAL_BUTTON_HEIGHT = 50;
+static const int LARGE_BUTTON_HEIGHT = 60;
 static const int TEXT_EDIT_HEIGHT = 140;
-static const int TRAINING_LABEL_HEIGHT = 140;
-static const int TRAINING_LABEL_INDENT = 3;
-static const int PREDICT_LABEL_HEIGHT = 57;
-static const int PREDICT_LABEL_INDENT = 3;
+
 static const int LABEL_HEIGHT = 25;
 static const int MAIN_LAYOUT_MARGIN = 10;
 // 字体
@@ -38,12 +37,21 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     // 窗口
     this->setWindowTitle("俊皓的遗传算法作业");
     
-    // 图片
-    QPixmap *introImage = new QPixmap;
-    introImage->load(":/images/genetic.jpg");
+    // 函数Name
+    current_problem_type = 0;
+    functionNameData.push_back("问题一 （n无关, 点我切换问题）");
+    functionNameData.push_back("问题二 （n = 2, 可修改）");
 
-    QLabel *imageLabel = new QLabel;
-    imageLabel->setPixmap(*introImage);
+    // 图片
+    QPixmap introImage_1;
+    introImage_1.load(":/images/genetic_1.jpg");
+    QPixmap introImage_2;
+    introImage_2.load(":/images/genetic_2.jpg");
+    imageData.push_back(introImage_1);
+    imageData.push_back(introImage_2);
+
+    imageLabel = new QLabel;
+    imageLabel->setPixmap(introImage_1);
     imageLabel->setScaledContents(true);
     imageLabel->resize(imageLabel->pixmap()->size());
 
@@ -74,9 +82,21 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     iterationLabel->setFont(*labelFont);
     iterationLabel->setFixedHeight(LABEL_HEIGHT);
 
-    QLabel *jLabel = new QLabel("j值:");
+    QLabel *jLabel = new QLabel("j值:          ");
     jLabel->setFont(*labelFont);
     jLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *leftValLabel = new QLabel("区间左值:");
+    leftValLabel->setFont(*labelFont);
+    leftValLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *rightValLabel = new QLabel("区间右值:");
+    rightValLabel->setFont(*labelFont);
+    rightValLabel->setFixedHeight(LABEL_HEIGHT);
+
+    QLabel *nLabel = new QLabel("n值:         ");
+    nLabel->setFont(*labelFont);
+    nLabel->setFixedHeight(LABEL_HEIGHT);
 
     QLabel *endingLabel = new QLabel("ai_assignment_genetic © 2017 Junhao (2014101027)");
     endingLabel->setFont(*smallLabelFont);
@@ -91,157 +111,145 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
     popsizeEdit->setFixedWidth(LINE_EDIT_WIDTH);
     popsizeEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     popsizeEdit->setFont(*textFont);
-    popsizeEdit->setText("8");
+    popsizeEdit->setText(QString("%1").arg(POPSIZE));
 
     precisionEdit = new QLineEdit;
     precisionEdit->setFixedWidth(LINE_EDIT_WIDTH);
     precisionEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     precisionEdit->setFont(*textFont);
-    precisionEdit->setText("0.000001");
+    precisionEdit->setText(QString("%1").arg(PRECISION));
 
     p_crossEdit = new QLineEdit;
     p_crossEdit->setFixedWidth(LINE_EDIT_WIDTH);
     p_crossEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     p_crossEdit->setFont(*textFont);
-    p_crossEdit->setText("0.75");
+    p_crossEdit->setText(QString("%1").arg(P_CROSS));
 
     p_mutateEdit = new QLineEdit;
     p_mutateEdit->setFixedWidth(LINE_EDIT_WIDTH);
     p_mutateEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     p_mutateEdit->setFont(*textFont);
-    p_mutateEdit->setText("0.02");
+    p_mutateEdit->setText(QString("%1").arg(P_MUTATE));
 
     iterationEdit = new QLineEdit;
     iterationEdit->setFixedWidth(LINE_EDIT_WIDTH);
     iterationEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     iterationEdit->setFont(*textFont);
-    iterationEdit->setText("100");
+    iterationEdit->setText(QString("%1").arg(ITERATION_TIME));
 
     jEdit = new QLineEdit;
     jEdit->setFixedWidth(LINE_EDIT_WIDTH);
     jEdit->setFixedHeight(LINE_EDIT_HEIGHT);
     jEdit->setFont(*textFont);
-    jEdit->setText("2");
+    jEdit->setText(QString("%1").arg(J));
+
+    leftValEdit = new QLineEdit;
+    leftValEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    leftValEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    leftValEdit->setFont(*textFont);
+    leftValEdit->setText(QString("%1").arg(LEFT_VAL_1));
+
+    rightValEdit = new QLineEdit;
+    rightValEdit->setFixedWidth(LINE_EDIT_WIDTH);
+    rightValEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    rightValEdit->setFont(*textFont);
+    rightValEdit->setText(QString("%1").arg(RIGHT_VAL_1));
+
+    nEdit = new QLineEdit;
+    nEdit->setFixedWidth(LINE_EDIT_WIDTH * 2.5);
+    nEdit->setFixedHeight(LINE_EDIT_HEIGHT);
+    nEdit->setFont(*textFont);
+    nEdit->setText(QString("%1").arg(N_2));
+    nEdit->setReadOnly(true);
 
     // All Buttons
     QFont *btnFont = new QFont;
-    btnFont->setPointSize(BUTTON_BIG_FONT_SIZE);
-    // QFont *btnBigFont = new QFont;
-    // btnBigFont->setPointSize(BUTTON_BIG_FONT_SIZE);
+    btnFont->setPointSize(BUTTON_FONT_SIZE);
+    QFont *btnBigFont = new QFont;
+    btnBigFont->setPointSize(BUTTON_BIG_FONT_SIZE);
+
+    functionBtn = new QPushButton(functionNameData[0]);
+    functionBtn->setFont(*btnFont);
+    functionBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
+
+    QPushButton *resetBtn = new QPushButton("重置数据");
+    resetBtn->setFont(*btnFont);
+    resetBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
 
     QPushButton *trainBtn = new QPushButton("训练");
-    trainBtn->setFont(*btnFont);
-    trainBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
-
-
-    // sampleTextEdit = new QTextEdit;
-    // sampleTextEdit->setFixedHeight(TEXT_EDIT_HEIGHT);
-    // sampleTextEdit->setFont(*textFont);
-    // sampleTextEdit->setText("请用矩阵形式; 特征由空格隔开; 样本由换行分开; 类别在第一列.");
-
-    // // TrainingResultLabel
-    // QScrollArea *trainingScrollArea = new QScrollArea;
-    // trainingScrollArea->setFixedWidth(TRAINING_LABEL_WIDTH);
-    // trainingScrollArea->setFixedHeight(TRAINING_LABEL_HEIGHT);
-    // trainingResultLabel = new QLabel;
-    // trainingResultLabel->setScaledContents(true);
-    // trainingResultLabel->setFont(*textFont);
-    // trainingResultLabel->setIndent(TRAINING_LABEL_INDENT);
-    // trainingResultLabel->setText("<空>");
-    // trainingScrollArea->setWidget(trainingResultLabel);
-
-    // // PredictLineEdit
-    // predictLineEdit = new QLineEdit;
-    // predictLineEdit->setFixedWidth(LINE_EDIT_WIDTH);
-    // predictLineEdit->setFixedHeight(LINE_EDIT_HEIGHT);
-    // predictLineEdit->setFont(*textFont);
-    // predictLineEdit->setPlaceholderText("特征值1 特征值2 ... 特征值n");
-
-    // // PredictResultLabel
-    // QScrollArea *predictScrollArea = new QScrollArea;
-    // predictScrollArea->setFixedWidth(PREDICT_LABEL_WIDTH);
-    // predictScrollArea->setFixedHeight(PREDICT_LABEL_HEIGHT);
-    // predictResultLabel = new QLabel;
-    // predictResultLabel->setScaledContents(true);
-    // predictResultLabel->setFont(*textFont);
-    // predictResultLabel->setIndent(PREDICT_LABEL_INDENT);
-    // predictResultLabel->setText("<空>");
-    // predictScrollArea->setWidget(predictResultLabel);
-
-    // All Buttons
-    // QFont *btnFont = new QFont;
-    // btnFont->setPointSize(BUTTON_FONT_SIZE);
-    // QFont *btnBigFont = new QFont;
-    // btnBigFont->setPointSize(BUTTON_BIG_FONT_SIZE);
-
-    // QPushButton *sampleImportBtn = new QPushButton("导入txt");
-    // sampleImportBtn->setFont(*btnFont);
-    // sampleImportBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
-
-    // QPushButton *sampleClearBtn = new QPushButton("清空数据");
-    // sampleClearBtn->setFont(*btnFont);
-    // sampleClearBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
-
-    // QPushButton *trainingBtn = new QPushButton("训练 Go");
-    // trainingBtn->setFont(*btnFont);
-    // trainingBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
-
-    // QPushButton *trainingClearBtn = new QPushButton("丢弃模型");
-    // trainingClearBtn->setFont(*btnFont);
-    // trainingClearBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
-
-    // QPushButton *predictBtn = new QPushButton("预测 Go");
-    // predictBtn->setFont(*btnFont);
-    // predictBtn->setFixedHeight(NORMAL_BUTTON_HEIGHT);
+    trainBtn->setFont(*btnBigFont);
+    trainBtn->setFixedHeight(LARGE_BUTTON_HEIGHT);
 
     // Layout
     QVBoxLayout *mainLayout = new QVBoxLayout;
+    QHBoxLayout *subFunctionLayout = new QHBoxLayout;
     QHBoxLayout *subInputLayout1 = new QHBoxLayout;
     QHBoxLayout *subInputLayout2 = new 
     QHBoxLayout;
     QHBoxLayout *subInputLayout3 = new QHBoxLayout;
+    QHBoxLayout *subInputLayout4 = new QHBoxLayout;
+    QHBoxLayout *subInputLayout5 = new QHBoxLayout;
     QHBoxLayout *subOutputLayout = new QHBoxLayout;
     QHBoxLayout *subControlLayout = new QHBoxLayout;
 
     mainLayout->setMargin(MAIN_LAYOUT_MARGIN);
+    subFunctionLayout->setMargin(0);
+    subFunctionLayout->setSpacing(MAIN_LAYOUT_MARGIN);
     subInputLayout1->setMargin(0);
     subInputLayout1->setSpacing(MAIN_LAYOUT_MARGIN);
     subInputLayout2->setMargin(0);
     subInputLayout2->setSpacing(MAIN_LAYOUT_MARGIN);
     subInputLayout3->setMargin(0);
     subInputLayout3->setSpacing(MAIN_LAYOUT_MARGIN);
+    subInputLayout4->setMargin(0);
+    subInputLayout4->setSpacing(MAIN_LAYOUT_MARGIN);
+    subInputLayout5->setMargin(0);
+    subInputLayout5->setSpacing(MAIN_LAYOUT_MARGIN);
     subOutputLayout->setMargin(0);
     subOutputLayout->setSpacing(MAIN_LAYOUT_MARGIN);
     subControlLayout->setMargin(0);
     subControlLayout->setSpacing(MAIN_LAYOUT_MARGIN);
 
     // sub-layout
-    subInputLayout1->addWidget(popsizeLabel);
-    subInputLayout1->addWidget(popsizeEdit);
+    subFunctionLayout->addWidget(functionBtn);
+    subFunctionLayout->addWidget(resetBtn);
+
+    subInputLayout1->addWidget(nLabel);
+    subInputLayout1->addWidget(nEdit);
     subInputLayout1->addStretch();
-    subInputLayout1->addWidget(precisionLabel);
-    subInputLayout1->addWidget(precisionEdit);
 
-    subInputLayout2->addWidget(p_crossLabel);
-    subInputLayout2->addWidget(p_crossEdit);
+    subInputLayout2->addWidget(leftValLabel);
+    subInputLayout2->addWidget(leftValEdit);
     subInputLayout2->addStretch();
-    subInputLayout2->addWidget(p_mutateLabel);
-    subInputLayout2->addWidget(p_mutateEdit);
+    subInputLayout2->addWidget(rightValLabel);
+    subInputLayout2->addWidget(rightValEdit);
 
-
-    subInputLayout3->addWidget(iterationLabel);
-    subInputLayout3->addWidget(iterationEdit);
-    subInputLayout3->addStretch();
     subInputLayout3->addWidget(jLabel);
     subInputLayout3->addWidget(jEdit);
+    subInputLayout3->addStretch();
+    subInputLayout3->addWidget(popsizeLabel);
+    subInputLayout3->addWidget(popsizeEdit);
 
+    subInputLayout4->addWidget(iterationLabel);
+    subInputLayout4->addWidget(iterationEdit);
+    subInputLayout4->addStretch();
+    subInputLayout4->addWidget(precisionLabel);
+    subInputLayout4->addWidget(precisionEdit);
+
+    subInputLayout5->addWidget(p_crossLabel);
+    subInputLayout5->addWidget(p_crossEdit);
+    subInputLayout5->addStretch();
+    subInputLayout5->addWidget(p_mutateLabel);
+    subInputLayout5->addWidget(p_mutateEdit);
 
 
     // main-layout
     mainLayout->addWidget(imageLabel);
+    mainLayout->addLayout(subFunctionLayout);
     mainLayout->addLayout(subInputLayout1);
     mainLayout->addLayout(subInputLayout2);
     mainLayout->addLayout(subInputLayout3);
+    mainLayout->addLayout(subInputLayout4);
 
     // mainLayout->addWidget(trainingScrollArea);
 
@@ -263,18 +271,61 @@ MyDialog::MyDialog(QWidget *parent) : QDialog(parent)
 
     // 设置连接槽, 按钮事件
     connect(trainBtn, SIGNAL(clicked()), this, SLOT(TrainBtnClicked()));
-
-    // connect(sampleClearBtn, SIGNAL(clicked()), this, SLOT(onClearButtonClicked()));
+    connect(resetBtn, SIGNAL(clicked()), this, SLOT(ResetBtnClicked()));
+    connect(functionBtn, SIGNAL(clicked()), this, SLOT(FunctionBtnClicked()));
 }
 
+
+void MyDialog::SwitchFunction()
+{
+    current_problem_type = (current_problem_type == 0) ? 1 : 0;
+
+    functionBtn->setText(functionNameData[current_problem_type]);
+    imageLabel->setPixmap(imageData[current_problem_type]);
+
+    if (current_problem_type == 0)
+    {
+        leftValEdit->setText(QString("%1").arg(LEFT_VAL_1));
+        rightValEdit->setText(QString("%1").arg(RIGHT_VAL_1));
+        nEdit->setReadOnly(true);
+    }
+    else
+    {
+        leftValEdit->setText(QString("%1").arg(LEFT_VAL_2));
+        rightValEdit->setText(QString("%1").arg(RIGHT_VAL_2));
+        nEdit->setReadOnly(false);
+    }
+}
 
 // Button Clicked 按钮事件
 void MyDialog::TrainBtnClicked()
 {
     Genetic genetic;
-    genetic.Train();
+    genetic.Train(current_problem_type);
+
+    /* 设置参数 */
+    genetic.SetPopsize(atoi(popsizeEdit->text().toStdString().c_str()));
+    genetic.SetPrecision(atoi(precisionEdit->text().toStdString().c_str()));
+    genetic.SetPcross(atof(p_crossEdit->text().toStdString().c_str()));
+    genetic.SetPmutate(atof(p_mutateEdit->text().toStdString().c_str()));
+    genetic.SetLeftVal(atof(leftValEdit->text().toStdString().c_str()));
+    genetic.SetRightVal(atof(rightValEdit->text().toStdString().c_str()));
+    genetic.SetIterationTime(atoi(iterationEdit->text().toStdString().c_str()));
+    genetic.SetJ(atof(jEdit->text().toStdString().c_str()));
+    genetic.SetN(atoi(nEdit->text().toStdString().c_str()));
+
+    // cout<<"--------"<<atoi(popsizeEdit->text().toStdString().c_str())<<endl;
 }
 
+void MyDialog::FunctionBtnClicked()
+{
+    SwitchFunction();
+}
+
+void MyDialog::ResetBtnClicked()
+{
+
+}
 
 // // 训练模型清空
 // void MyDialog::onTrainingClearButtonClicked()

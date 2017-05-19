@@ -12,7 +12,9 @@ public:
     ~Chromosome() {};
 
     std::vector<int> GetData() { return c_data; }
-    double GetValue(int popsize, double leftVal, double rightVal);  /* 参数: 规模, 左区间, 右区间 */
+
+    /* 适用于多元变量 */
+    std::vector<double> GetValue(int popsize, double leftVal, double rightVal, int num_of_x);
 
 private:
     std::vector<int> c_data;
